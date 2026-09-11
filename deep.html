@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Two Truths and a Lie — AWS Edition</title>
+  <meta name="description" content="A game deck of cards about AWS, cloud computing, and Women in Tech in India. Put in a number, see the AWS card, flip to reveal the image statements, and beat the 2-minute timer!">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Playfair+Display:wght@700;800;900&display=swap" rel="stylesheet">
+  <style>
+    /* ========== RESET & BASE ========== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --lavender-border: #c8a8e9;
+      --lavender-light: #dfc6f5;
+      --purple-deep: #3a1d6e;
+      --purple-mid: #5b2d8e;
+      --purple-dark: #2a1250;
+      --magenta: #c0457b;
+      --pink-hot: #e84393;
+      --card-width: 360px;
+      --card-height: 520px;
+      --bg-dark: #0d0a1a;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg-dark);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+      color: #fff;
+      padding-bottom: 50px;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(90,30,150,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(200,60,120,0.12) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(60,20,120,0.15) 0%, transparent 50%);
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ========== PARTICLES ========== */
+    .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+    .particle { position: absolute; width: 3px; height: 3px; background: rgba(200,168,233,0.4); border-radius: 50%; animation: floatUp linear infinite; }
+    @keyframes floatUp {
+      0% { transform: translateY(100vh) scale(0); opacity: 0; }
+      10% { opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    /* ========== HEADER ========== */
+    .header {
+      position: relative; z-index: 10;
+      text-align: center; padding: 36px 20px 10px;
+    }
+    .header h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4.5vw, 3rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, #e0c3fc, #f5d0fe, #c084fc, #a855f7);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px; margin-bottom: 6px;
+    }
+    .header .subtitle {
+      font-size: 0.85rem;
+      color: rgba(200,180,230,0.65);
+      font-weight: 500; letter-spacing: 2px;
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    .header .deck-info {
+      font-size: 0.86rem;
+      color: rgba(220,200,245,0.75);
+      max-width: 580px; margin: 0 auto;
+      line-height: 1.6;
+      font-weight: 400;
+      padding: 12px 24px;
+      background: rgba(90,45,142,0.18);
+      border: 1px solid rgba(200,168,233,0.18);
+      border-radius: 14px;
+      backdrop-filter: blur(8px);
+    }
+
+    /* ========== INPUT SECTION ========== */
+    .input-section {
+      position: relative; z-index: 10;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 14px; margin: 26px 0 34px;
+    }
+    .input-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; }
+    .input-wrapper input {
+      width: 130px; height: 52px;
+      border: 2px solid rgba(200,168,233,0.3); border-radius: 16px;
+      background: rgba(58,29,110,0.45); backdrop-filter: blur(12px);
+      color: #fff; font-size: 1.3rem; font-weight: 700; text-align: center;
+      outline: none; transition: all 0.3s ease; font-family: 'Inter', sans-serif;
+    }
+    .input-wrapper input::placeholder { color: rgba(200,168,233,0.4); font-weight: 400; font-size: 0.9rem; }
+    .input-wrapper input:focus {
+      border-color: var(--lavender-border);
+      box-shadow: 0 0 20px rgba(168,85,247,0.35), 0 0 60px rgba(168,85,247,0.15);
+      background: rgba(58,29,110,0.65);
+    }
+
+    .btn {
+      height: 52px; padding: 0 26px;
+      border: none; border-radius: 16px;
+      color: #fff; font-size: 0.95rem; font-weight: 700;
+      font-family: 'Inter', sans-serif; cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+      letter-spacing: 0.5px;
+      position: relative; overflow: hidden;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .btn::before {
+      content: ''; position: absolute; top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+      transition: left 0.5s ease;
+    }
+    .btn:hover { transform: translateY(-2px); }
+    .btn:hover::before { left: 100%; }
+    .btn:active { transform: translateY(0); }
+
+    .btn-show {
+      background: linear-gradient(135deg, #7c3aed, #a855f7, #c084fc);
+    }
+    .btn-show:hover { box-shadow: 0 8px 30px rgba(168,85,247,0.4); }
+
+    .btn-shuffle {
+      background: linear-gradient(135deg, #c0457b, #e84393, #f59cbb);
+    }
+    .btn-shuffle:hover { box-shadow: 0 8px 30px rgba(232,67,147,0.4); }
+
+    .hint { font-size: 0.8rem; color: rgba(200,180,230,0.4); letter-spacing: 0.5px; }
+
+    /* ========== CARD STAGE ========== */
+    /* .card-stage is only a sizing box now. */
+    .card-stage {
+      position: relative; z-index: 10;
+      width: var(--card-width); height: var(--card-height);
+      margin-bottom: 24px;
+    }
+
+    @keyframes slideInFromRight {
+      0% { transform: translateX(110vw) rotate(10deg) scale(0.8); opacity: 0; }
+      60% { transform: translateX(-12px) rotate(-1.5deg) scale(1.02); opacity: 1; }
+      80% { transform: translateX(5px) rotate(0.5deg) scale(1); opacity: 1; }
+      100% { transform: translateX(0) rotate(0) scale(1); opacity: 1; }
+    }
+    @keyframes slideOutToLeft {
+      0% { transform: translateX(0) rotate(0) scale(1); opacity: 1; }
+      100% { transform: translateX(-110vw) rotate(-10deg) scale(0.8); opacity: 0; }
+    }
+
+    /* WRAPPER: owns the slide animation AND the perspective */
+    .card-slide {
+      width: 100%; height: 100%;
+      position: relative;
+      display: none;
+      perspective: 1600px;
+      -webkit-perspective: 1600px;
+    }
+    .card-slide.visible {
+      display: block;
+      animation: slideInFromRight 0.75s cubic-bezier(0.34,1.3,0.64,1) forwards;
+    }
+    .card-slide.slide-out {
+      animation: slideOutToLeft 0.45s cubic-bezier(0.4,0,1,1) forwards;
+    }
+
+    /* INNER: owns the flip. No filter, no animation here. */
+    .card-container {
+      width: 100%; height: 100%; position: relative;
+      transform-style: preserve-3d;
+      -webkit-transform-style: preserve-3d;
+      transition: transform 0.8s cubic-bezier(0.34, 1.3, 0.64, 1);
+      -webkit-transition: -webkit-transform 0.8s cubic-bezier(0.34, 1.3, 0.64, 1);
+      cursor: pointer;
+    }
+    .card-container.flipped { transform: rotateY(180deg); }
+
+    .card-face {
+      position: absolute; width: 100%; height: 100%;
+      top: 0; left: 0;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.45);
+    }
+
+    /* ========== CARD FRONT (AWS Branded Back Design) ========== */
+    .card-front {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border: 5px solid var(--lavender-light);
+      transform: rotateY(0deg);
+      -webkit-transform: rotateY(0deg);
+    }
+    .card-front-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+    .card-front-bg svg { width: 100%; height: 100%; }
+
+    .card-front-content {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+      pointer-events: none;
+    }
+    .aws-logo-text {
+      font-family: 'Inter', sans-serif; font-size: 3.4rem; font-weight: 900;
+      color: #fff; letter-spacing: 4px; text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .aws-smile { width: 84px; margin-top: -6px; opacity: 0.75; }
+
+    .card-number-badge {
+      position: absolute; top: 20px; right: 20px; z-index: 5;
+      background: rgba(255,255,255,0.18); border: 1.5px solid rgba(255,255,255,0.25);
+      border-radius: 12px; padding: 6px 14px;
+      font-family: 'Playfair Display', serif; font-size: 0.9rem;
+      font-weight: 800; letter-spacing: 2px; color: #fff;
+      backdrop-filter: blur(6px);
+      pointer-events: none;
+    }
+    .card-tap-label {
+      position: absolute; bottom: 24px; z-index: 5;
+      font-size: 0.76rem; color: rgba(255,255,255,0.65);
+      letter-spacing: 2.5px; text-transform: uppercase;
+      font-weight: 600;
+      display: flex; align-items: center; gap: 6px;
+      animation: pulseFade 1.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes pulseFade {
+      0%, 100% { opacity: 0.45; transform: translateY(0); }
+      50% { opacity: 0.95; transform: translateY(-3px); }
+    }
+
+    .sparkle { position: absolute; z-index: 3; animation: sparkleAnim 2s ease-in-out infinite; pointer-events: none; }
+    .sparkle-1 { top: 28%; right: 25%; animation-delay: 0s; }
+    .sparkle-2 { top: 32%; right: 22%; animation-delay: 0.5s; }
+    .sparkle-3 { bottom: 35%; left: 20%; animation-delay: 1s; }
+    .sparkle-4 { top: 18%; left: 30%; animation-delay: 1.5s; }
+    @keyframes sparkleAnim {
+      0%, 100% { opacity: 0.3; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    /* ========== CARD REVEAL SIDE (Back face with image) ========== */
+    .card-back {
+      transform: rotateY(180deg);
+      -webkit-transform: rotateY(180deg);
+      background: #180d2f;
+      display: flex; align-items: center; justify-content: center;
+      border: 5px solid var(--lavender-light);
+    }
+
+    .card-image-wrapper {
+      width: 100%; height: 100%;
+      position: relative;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      background: #1f103d;
+      pointer-events: none;
+    }
+
+    .card-revealed-img {
+      width: 100%; height: 100%;
+      object-fit: fill;
+      display: block;
+      pointer-events: none;
+    }
+
+    .image-loading-placeholder {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 12px; background: #231145;
+      color: rgba(255,255,255,0.7);
+      font-size: 0.9rem;
+      z-index: 1;
+      text-align: center;
+      padding: 20px;
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid rgba(200,168,233,0.3);
+      border-top-color: var(--lavender-light);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ========== TIMER SECTION ========== */
+    .timer-section {
+      position: relative; z-index: 10;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 14px; margin-bottom: 24px;
+      opacity: 0; transform: translateY(20px);
+      transition: all 0.5s ease;
+      pointer-events: none;
+    }
+    .timer-section.visible {
+      opacity: 1; transform: translateY(0); pointer-events: auto;
+    }
+
+    .timer-ring-wrapper {
+      position: relative; width: 110px; height: 110px;
+    }
+    .timer-ring {
+      width: 110px; height: 110px;
+      transform: rotate(-90deg);
+    }
+    .timer-ring-bg {
+      fill: none; stroke: rgba(200,168,233,0.15); stroke-width: 6;
+    }
+    .timer-ring-progress {
+      fill: none; stroke: url(#timerGrad); stroke-width: 6;
+      stroke-linecap: round;
+      stroke-dasharray: 314.16;
+      stroke-dashoffset: 0;
+      transition: stroke-dashoffset 0.4s linear;
+    }
+    .timer-text {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.5rem; font-weight: 800; color: #fff;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 1px;
+    }
+
+    .timer-controls { display: flex; align-items: center; gap: 14px; }
+    .timer-btn {
+      width: 44px; height: 44px;
+      border: 2px solid rgba(200,168,233,0.3); border-radius: 50%;
+      background: rgba(58,29,110,0.5); backdrop-filter: blur(8px);
+      color: rgba(220,200,245,0.9); font-size: 1.05rem;
+      cursor: pointer; transition: all 0.3s ease;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .timer-btn:hover {
+      border-color: var(--lavender-border); color: #fff;
+      background: rgba(168,85,247,0.35); transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(168,85,247,0.3);
+    }
+    .timer-label {
+      font-size: 0.76rem; color: rgba(200,180,230,0.5);
+      letter-spacing: 2px; text-transform: uppercase; font-weight: 600;
+    }
+
+    /* ========== POST-TIMER / NEXT CARD SECTION ========== */
+    .next-section {
+      position: relative; z-index: 10;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 16px; margin-bottom: 30px;
+      opacity: 0; transform: translateY(20px);
+      transition: all 0.5s ease;
+      pointer-events: none;
+    }
+    .next-section.visible {
+      opacity: 1; transform: translateY(0); pointer-events: auto;
+    }
+    .next-section .prompt-text {
+      font-size: 1rem; color: #f5d0fe;
+      font-weight: 700; letter-spacing: 0.5px;
+      text-shadow: 0 2px 10px rgba(168,85,247,0.3);
+    }
+    .next-section .next-row {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;
+    }
+
+    /* ========== NAV ARROWS ========== */
+    .nav-arrows {
+      position: relative; z-index: 10;
+      display: flex; align-items: center; gap: 24px;
+      margin-bottom: 20px;
+      opacity: 0; transition: opacity 0.5s ease 0.6s; pointer-events: none;
+    }
+    .nav-arrows.visible { opacity: 1; pointer-events: auto; }
+    .nav-btn {
+      width: 44px; height: 44px;
+      border: 2px solid rgba(200,168,233,0.3); border-radius: 50%;
+      background: rgba(58,29,110,0.4); backdrop-filter: blur(8px);
+      color: rgba(220,200,245,0.8); font-size: 1.1rem;
+      cursor: pointer; transition: all 0.3s ease;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .nav-btn:hover {
+      border-color: var(--lavender-border); color: #fff;
+      background: rgba(168,85,247,0.35); transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(168,85,247,0.25);
+    }
+    .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
+    .nav-counter {
+      font-size: 0.9rem; color: rgba(220,200,245,0.7);
+      font-weight: 700; min-width: 60px; text-align: center;
+    }
+
+    /* ========== SHAKE & PULSE ========== */
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-8px); }
+      40% { transform: translateX(8px); }
+      60% { transform: translateX(-6px); }
+      80% { transform: translateX(6px); }
+    }
+    .shake { animation: shake 0.4s ease; }
+
+    @keyframes timesUpPulse {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(1.08); }
+    }
+    .times-up .timer-text { animation: timesUpPulse 0.6s ease 3; color: #ff6b8b; }
+
+    /* ========== RESPONSIVE ========== */
+    @media (max-width: 480px) {
+      :root { --card-width: 310px; --card-height: 460px; }
+      .header { padding: 24px 16px 8px; }
+      .header .deck-info { font-size: 0.8rem; padding: 10px 16px; }
+      .input-row { flex-direction: column; gap: 10px; }
+      .input-wrapper input { width: 100%; }
+      .btn { width: 100%; justify-content: center; }
+      .aws-logo-text { font-size: 2.8rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="particles" id="particles"></div>
+
+  <!-- ===== HEADER ===== -->
+  <header class="header">
+    <h1>Two Truths and a Lie</h1>
+    <p class="subtitle">AWS Edition</p>
+    <p class="deck-info">
+      This deck contains <strong>101 cards</strong> about AWS, Cloud Computing, and Women in Tech in India with AWS connections.
+      Enter a number or shuffle to draw a card, then tap to flip and reveal the 3 statements!
+    </p>
+  </header>
+
+  <!-- ===== INPUT SECTION ===== -->
+  <section class="input-section" id="inputSection">
+    <div class="input-row">
+      <div class="input-wrapper">
+        <input type="number" id="cardInput" min="1" max="101" placeholder="1 – 101" aria-label="Enter card number">
+      </div>
+      <button class="btn btn-show" id="btnShow" aria-label="Show card">
+        <span>🃏</span> Show Card
+      </button>
+      <button class="btn btn-shuffle" id="btnShuffle" aria-label="Shuffle random card">
+        <span>🔀</span> Shuffle
+      </button>
+    </div>
+    <span class="hint">Type a number from 1 to 101 or hit Shuffle</span>
+  </section>
+
+  <!-- ===== CARD STAGE ===== -->
+  <section class="card-stage" id="cardStage">
+
+    <!-- SLIDE WRAPPER: animation + perspective live here -->
+    <div class="card-slide" id="cardSlide">
+
+      <!-- FLIP CONTAINER: only the rotateY flip lives here -->
+      <div class="card-container" id="cardContainer">
+
+        <!-- FRONT FACE: AWS Card Back (Shown First!) -->
+        <div class="card-face card-front" id="cardFront">
+          <div class="card-front-bg">
+            <svg viewBox="0 0 360 520" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#c0457b;stop-opacity:1"/>
+                  <stop offset="40%" style="stop-color:#7c3aed;stop-opacity:1"/>
+                  <stop offset="100%" style="stop-color:#3a1d6e;stop-opacity:1"/>
+                </linearGradient>
+                <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#e84393;stop-opacity:0.6"/>
+                  <stop offset="100%" style="stop-color:#6c3483;stop-opacity:0.6"/>
+                </linearGradient>
+              </defs>
+              <rect width="360" height="520" fill="url(#grad1)"/>
+              <path d="M0 120 Q90 80 180 130 T360 100 L360 220 Q270 270 180 210 T0 240Z" fill="url(#grad2)" opacity="0.5"/>
+              <path d="M0 200 Q90 160 180 220 T360 190 L360 320 Q270 360 180 300 T0 340Z" fill="rgba(90,30,130,0.35)"/>
+              <path d="M0 300 Q90 260 180 320 T360 290 L360 420 Q270 460 180 400 T0 440Z" fill="rgba(60,20,100,0.3)"/>
+              <path d="M0 380 Q130 350 210 400 T360 370 L360 520 L0 520Z" fill="rgba(40,15,80,0.4)"/>
+            </svg>
+          </div>
+          <svg class="sparkle sparkle-1" width="12" height="12" viewBox="0 0 12 12"><polygon points="6,0 7.5,4.5 12,6 7.5,7.5 6,12 4.5,7.5 0,6 4.5,4.5" fill="#ff7675" opacity="0.8"/></svg>
+          <svg class="sparkle sparkle-2" width="8" height="8" viewBox="0 0 12 12"><polygon points="6,0 7.5,4.5 12,6 7.5,7.5 6,12 4.5,7.5 0,6 4.5,4.5" fill="#ff7675" opacity="0.6"/></svg>
+          <svg class="sparkle sparkle-3" width="10" height="10" viewBox="0 0 12 12"><polygon points="6,0 7.5,4.5 12,6 7.5,7.5 6,12 4.5,7.5 0,6 4.5,4.5" fill="#dfe6e9" opacity="0.4"/></svg>
+          <svg class="sparkle sparkle-4" width="6" height="6" viewBox="0 0 12 12"><polygon points="6,0 7.5,4.5 12,6 7.5,7.5 6,12 4.5,7.5 0,6 4.5,4.5" fill="#c8a8e9" opacity="0.5"/></svg>
+
+          <div class="card-number-badge" id="cardBadge"># 01</div>
+
+          <div class="card-front-content">
+            <div class="aws-logo-text">AWS</div>
+            <svg class="aws-smile" viewBox="0 0 80 30" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18 Q40 30 65 18" stroke="rgba(200,168,233,0.6)" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+              <path d="M55 15 L65 18 L58 10" stroke="rgba(200,168,233,0.6)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+
+          <div class="card-tap-label">
+            <span>👆</span> Tap to flip &amp; reveal
+          </div>
+        </div>
+
+        <!-- REVEAL FACE: Image Card with Statements (Shown on Flip) -->
+        <div class="card-face card-back" id="cardBack">
+          <div class="card-image-wrapper">
+            <div class="image-loading-placeholder" id="imgLoading">
+              <div class="spinner"></div>
+              <span>Loading statement card...</span>
+            </div>
+            <img id="cardRevealedImg" class="card-revealed-img" src="" alt="AWS Statement Card" />
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TIMER SECTION (Triggered on flip) ===== -->
+  <section class="timer-section" id="timerSection">
+    <div class="timer-ring-wrapper" id="timerRingWrapper">
+      <svg class="timer-ring" viewBox="0 0 110 110">
+        <defs>
+          <linearGradient id="timerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#a855f7"/>
+            <stop offset="100%" style="stop-color:#e84393"/>
+          </linearGradient>
+        </defs>
+        <circle class="timer-ring-bg" cx="55" cy="55" r="50"/>
+        <circle class="timer-ring-progress" id="timerProgress" cx="55" cy="55" r="50"/>
+      </svg>
+      <div class="timer-text" id="timerText">1:00</div>
+    </div>
+    <div class="timer-controls">
+      <button class="timer-btn" id="btnTimerPause" aria-label="Pause timer" title="Pause">⏸</button>
+      <button class="timer-btn" id="btnTimerPlay" aria-label="Resume timer" title="Play" style="display:none;">▶</button>
+      <button class="timer-btn" id="btnTimerReset" aria-label="Reset timer" title="Reset">↻</button>
+    </div>
+    <span class="timer-label">1-Minute Guessing Timer</span>
+  </section>
+
+  <!-- ===== NEXT CARD SECTION (After Timer Ends) ===== -->
+  <section class="next-section" id="nextSection">
+    <p class="prompt-text">⏰ 1 Minutes Up! Ready for the next card?</p>
+    <div class="next-row">
+      <div class="input-wrapper">
+        <input type="number" id="nextCardInput" min="1" max="101" placeholder="1 – 101" aria-label="Enter next card number">
+      </div>
+      <button class="btn btn-show" id="btnNextShow" aria-label="Show next card">
+        <span>🃏</span> Show Card
+      </button>
+      <button class="btn btn-shuffle" id="btnNextShuffle" aria-label="Shuffle next card">
+        <span>🔀</span> Shuffle
+      </button>
+    </div>
+  </section>
+
+  <!-- ===== NAV ARROWS ===== -->
+  <div class="nav-arrows" id="navArrows">
+    <button class="nav-btn" id="btnPrev" aria-label="Previous card">◀</button>
+    <span class="nav-counter" id="navCounter">1 / 60</span>
+    <button class="nav-btn" id="btnNext" aria-label="Next card">▶</button>
+  </div>
+
+  <footer class="footer" style="text-align: center; color: rgba(200,180,230,0.25); font-size: 0.72rem; letter-spacing: 1px;">
+    Two Truths and a Lie &middot; AWS Edition &middot; 60 Cards
+  </footer>
+
+  <script>
+    // =========================================================================
+    //  MAPPING: Card 1 -> 2.png, Card 2 -> 3.png, ..., Card 101 -> 102.png
+    // =========================================================================
+    function getCardImagePath(cardNumber) {
+      const imageNumber = cardNumber + 1;
+      return `./AWS/${imageNumber}.png`;
+    }
+
+    // Preload image object in background
+    const imagePreloadCache = {};
+    function preloadImage(cardNumber) {
+      if (cardNumber < 1 || cardNumber > 101) return;
+      const path = getCardImagePath(cardNumber);
+      if (!imagePreloadCache[path]) {
+        const img = new Image();
+        img.src = path;
+        imagePreloadCache[path] = img;
+      }
+    }
+
+    // ========== DOM REFERENCES ==========
+    const cardInput        = document.getElementById('cardInput');
+    const btnShow          = document.getElementById('btnShow');
+    const btnShuffle       = document.getElementById('btnShuffle');
+    const cardSlide        = document.getElementById('cardSlide');
+    const cardContainer    = document.getElementById('cardContainer');
+    const cardBadge        = document.getElementById('cardBadge');
+    const cardRevealedImg  = document.getElementById('cardRevealedImg');
+    const imgLoading       = document.getElementById('imgLoading');
+    const timerSection     = document.getElementById('timerSection');
+    const timerText        = document.getElementById('timerText');
+    const timerProgress    = document.getElementById('timerProgress');
+    const timerWrapper     = document.getElementById('timerRingWrapper');
+    const btnTimerPause    = document.getElementById('btnTimerPause');
+    const btnTimerPlay     = document.getElementById('btnTimerPlay');
+    const btnTimerReset    = document.getElementById('btnTimerReset');
+    const nextSection      = document.getElementById('nextSection');
+    const nextCardInput    = document.getElementById('nextCardInput');
+    const btnNextShow      = document.getElementById('btnNextShow');
+    const btnNextShuffle   = document.getElementById('btnNextShuffle');
+    const navArrows        = document.getElementById('navArrows');
+    const navCounter       = document.getElementById('navCounter');
+    const btnPrev          = document.getElementById('btnPrev');
+    const btnNext          = document.getElementById('btnNext');
+
+    let currentCard        = null;
+    let isFlipped          = false;
+    let isAnimating        = false;
+    let timerInterval      = null;
+    const TIMER_TOTAL      = 60; // 1 minutes (60 seconds)
+    let timerRemaining     = TIMER_TOTAL;
+    let timerPaused        = false;
+    const CIRCUMFERENCE    = 2 * Math.PI * 50; // r=50 in SVG
+
+    timerProgress.style.strokeDasharray = CIRCUMFERENCE;
+
+    // ========== AMBIENT PARTICLES ==========
+    (function createParticles() {
+      const container = document.getElementById('particles');
+      for (let i = 0; i < 22; i++) {
+        const p = document.createElement('div');
+        p.classList.add('particle');
+        p.style.left = Math.random() * 100 + '%';
+        p.style.animationDuration = (8 + Math.random() * 12) + 's';
+        p.style.animationDelay = Math.random() * 10 + 's';
+        const s = (2 + Math.random() * 3) + 'px';
+        p.style.width = s; p.style.height = s;
+        container.appendChild(p);
+      }
+    })();
+
+    // ========== SHOW CARD (Displays AWS Card Face First) ==========
+    function showCard(num) {
+      if (num < 1 || num > 101 || isNaN(num)) {
+        cardInput.classList.add('shake');
+        setTimeout(() => cardInput.classList.remove('shake'), 400);
+        return;
+      }
+
+      // Reset timer & sections
+      stopTimer();
+      resetTimer();
+      timerSection.classList.remove('visible');
+      nextSection.classList.remove('visible');
+
+      // Unflip card immediately so it shows front
+      isFlipped = false;
+      cardContainer.classList.remove('flipped');
+
+      currentCard = num;
+
+      if (cardSlide.classList.contains('visible')) {
+        // Slide out old card, then slide in new
+        isAnimating = true;
+        cardSlide.classList.add('slide-out');
+        navArrows.classList.remove('visible');
+
+        setTimeout(() => {
+          populateCard(num);
+          cardSlide.classList.remove('slide-out', 'visible');
+          void cardSlide.offsetWidth; // Trigger reflow so animation restarts
+          cardSlide.classList.add('visible');
+          navArrows.classList.add('visible');
+          updateNav();
+          isAnimating = false;
+        }, 400);
+      } else {
+        populateCard(num);
+        cardSlide.classList.add('visible');
+        navArrows.classList.add('visible');
+        updateNav();
+      }
+
+      // Preload next and previous images
+      preloadImage(num - 1);
+      preloadImage(num + 1);
+    }
+
+    // Configure image for the card
+    function populateCard(num) {
+      const label = num < 10 ? '0' + num : '' + num;
+      cardBadge.textContent = '# ' + label;
+
+      const imgPath = getCardImagePath(num);
+      imgLoading.style.display = 'flex';
+      imgLoading.innerHTML = `<div class="spinner"></div><span>Loading Card ${num}...</span>`;
+      cardRevealedImg.style.display = 'none';
+
+      cardRevealedImg.onload = () => {
+        imgLoading.style.display = 'none';
+        cardRevealedImg.style.display = 'block';
+      };
+
+      cardRevealedImg.onerror = () => {
+        imgLoading.style.display = 'flex';
+        imgLoading.innerHTML = `<span>⚠️ Could not find:<br><code>${imgPath}</code></span>`;
+      };
+
+      cardRevealedImg.src = imgPath;
+    }
+
+    function updateNav() {
+      navCounter.textContent = currentCard + ' / 60';
+      btnPrev.disabled = currentCard <= 1;
+      btnNext.disabled = currentCard >= 60;
+    }
+
+    function getRandomCard() {
+      return Math.floor(Math.random() * 60) + 1;
+    }
+
+    // ========== TAP CARD: FLIP TO REVEAL & START TIMER ==========
+    function handleCardFlip() {
+      if (isAnimating) return;
+      isFlipped = !isFlipped;
+      cardContainer.classList.toggle('flipped', isFlipped);
+
+      if (isFlipped) {
+        // Turned around to reveal statement image!
+        timerSection.classList.add('visible');
+        nextSection.classList.remove('visible');
+        resetTimer();
+        startTimer();
+      } else {
+        // Flipped back to AWS card
+        stopTimer();
+        timerSection.classList.remove('visible');
+        nextSection.classList.remove('visible');
+      }
+    }
+
+    cardContainer.addEventListener('click', handleCardFlip);
+
+    // ========== TIMER SYSTEM (2 MINUTES) ==========
+    function startTimer() {
+      timerPaused = false;
+      btnTimerPause.style.display = 'flex';
+      btnTimerPlay.style.display = 'none';
+      timerWrapper.classList.remove('times-up');
+
+      timerInterval = setInterval(() => {
+        if (timerPaused) return;
+        timerRemaining--;
+        updateTimerDisplay();
+
+        if (timerRemaining <= 0) {
+          stopTimer();
+          timerWrapper.classList.add('times-up');
+          nextSection.classList.add('visible');
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    function resetTimer() {
+      stopTimer();
+      timerRemaining = TIMER_TOTAL;
+      timerPaused = false;
+      timerWrapper.classList.remove('times-up');
+      updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+      const m = Math.floor(timerRemaining / 60);
+      const s = timerRemaining % 60;
+      timerText.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+
+      const offset = CIRCUMFERENCE * (1 - timerRemaining / TIMER_TOTAL);
+      timerProgress.style.strokeDashoffset = offset;
+    }
+
+    btnTimerPause.addEventListener('click', (e) => {
+      e.stopPropagation();
+      timerPaused = true;
+      btnTimerPause.style.display = 'none';
+      btnTimerPlay.style.display = 'flex';
+    });
+
+    btnTimerPlay.addEventListener('click', (e) => {
+      e.stopPropagation();
+      timerPaused = false;
+      btnTimerPlay.style.display = 'none';
+      btnTimerPause.style.display = 'flex';
+    });
+
+    btnTimerReset.addEventListener('click', (e) => {
+      e.stopPropagation();
+      resetTimer();
+      startTimer();
+    });
+
+    // ========== INPUT & BUTTON CONTROLS ==========
+    btnShow.addEventListener('click', () => {
+      const val = parseInt(cardInput.value, 10);
+      showCard(val);
+    });
+
+    cardInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        showCard(parseInt(cardInput.value, 10));
+      }
+    });
+
+    btnShuffle.addEventListener('click', () => {
+      const r = getRandomCard();
+      cardInput.value = r;
+      showCard(r);
+    });
+
+    btnNextShow.addEventListener('click', () => {
+      const val = parseInt(nextCardInput.value, 10);
+      cardInput.value = val;
+      showCard(val);
+    });
+
+    nextCardInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const val = parseInt(nextCardInput.value, 10);
+        cardInput.value = val;
+        showCard(val);
+      }
+    });
+
+    btnNextShuffle.addEventListener('click', () => {
+      const r = getRandomCard();
+      cardInput.value = r;
+      showCard(r);
+    });
+
+    btnPrev.addEventListener('click', () => {
+      if (currentCard > 1) {
+        cardInput.value = currentCard - 1;
+        showCard(currentCard - 1);
+      }
+    });
+
+    btnNext.addEventListener('click', () => {
+      if (currentCard < 101) {
+        cardInput.value = currentCard + 1;
+        showCard(currentCard + 1);
+      }
+    });
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if (document.activeElement.tagName === 'INPUT') return;
+      if (e.key === 'ArrowLeft' && currentCard > 1) {
+        cardInput.value = currentCard - 1;
+        showCard(currentCard - 1);
+      } else if (e.key === 'ArrowRight' && currentCard < 60) {
+        cardInput.value = currentCard + 1;
+        showCard(currentCard + 1);
+      } else if (e.key === ' ' || e.key === 'Enter') {
+        if (cardSlide.classList.contains('visible')) {
+          e.preventDefault();
+          handleCardFlip();
+        }
+      }
+    });
+
+    // Initialize timer UI
+    updateTimerDisplay();
+
+    // Auto-show Card 1 on page load so it's ready immediately
+    window.addEventListener('DOMContentLoaded', () => {
+      cardInput.value = 1;
+      showCard(1);
+    });
+  </script>
+</body>
+</html>
